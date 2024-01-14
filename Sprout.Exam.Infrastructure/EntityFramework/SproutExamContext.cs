@@ -1,5 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Sprout.Exam.Core.EmployeeAggregate;
+using Sprout.Exam.Core.EmployeeAggregate.Enums;
+using System.Diagnostics.Contracts;
+using System.Reflection.Metadata;
 
 namespace Sprout.Exam.Infrastructure
 {
@@ -13,9 +16,11 @@ namespace Sprout.Exam.Infrastructure
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
-            modelBuilder.HasDefaultSchema("dbo");
+            modelBuilder.Entity<Employee>()
+                .HasDiscriminator<int>(x=>x.EmployeeTypeId)
+                .HasValue<RegularEmployee>((int)EmployeeType.Regular);
         }
 
-        public virtual DbSet<Employee> Employees { get; set; }
+        public virtual DbSet<Employee> Employee { get; set; }
     }
 }
