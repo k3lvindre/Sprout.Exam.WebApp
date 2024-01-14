@@ -6,7 +6,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Sprout.Exam.Business.DataTransferObjects;
-using Sprout.Exam.Common.Enums;
+using Sprout.Exam.Core.EmployeeAggregate.Enums;
 
 namespace Sprout.Exam.WebApp.Controllers
 {
