@@ -7,6 +7,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Sprout.Exam.Infrastructure;
+using Sprout.Exam.WebApp.ApplicationModuleExtension;
 using Sprout.Exam.WebApp.Data;
 using Sprout.Exam.WebApp.Models;
 
@@ -27,10 +28,6 @@ namespace Sprout.Exam.WebApp
             services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlServer(
                     Configuration.GetConnectionString("DefaultConnection")));            
-            
-            services.AddDbContext<SproutExamContext>(options =>
-                options.UseSqlServer(
-                    Configuration.GetConnectionString("DefaultConnection")));
 
             services.AddDatabaseDeveloperPageExceptionFilter();
 
@@ -39,6 +36,8 @@ namespace Sprout.Exam.WebApp
 
             services.AddIdentityServer()
                 .AddApiAuthorization<ApplicationUser, ApplicationDbContext>();
+
+            services.AddSproutDataAccess(Configuration);
 
             services.AddAuthentication()
                 .AddIdentityServerJwt();

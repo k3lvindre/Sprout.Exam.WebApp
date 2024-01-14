@@ -5,7 +5,7 @@ namespace Sprout.Exam.Infrastructure
 {
     public class SproutExamContext : DbContext
     {
-        public SproutExamContext(DbContextOptions options) : base(options)
+        public SproutExamContext(DbContextOptions<SproutExamContext> options) : base(options)
         {
         }
 
