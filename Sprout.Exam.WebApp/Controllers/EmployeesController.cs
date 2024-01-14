@@ -7,6 +7,9 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Sprout.Exam.Business.DataTransferObjects;
 using Sprout.Exam.Core.EmployeeAggregate.Enums;
+using Sprout.Exam.Application;
+using Sprout.Exam.Infrastructure.EntityFramework.Repository;
+using Sprout.Exam.Core.EmployeeAggregate;
 
 namespace Sprout.Exam.WebApp.Controllers
 {
@@ -15,7 +18,12 @@ namespace Sprout.Exam.WebApp.Controllers
     [ApiController]
     public class EmployeesController : ControllerBase
     {
+        private readonly IEmployeeRepository _employeeRepository;
 
+        public EmployeesController(IEmployeeRepository employeeRepository)
+        {
+            _employeeRepository = employeeRepository;
+        }
         /// <summary>
         /// Refactor this method to go through proper layers and fetch from the DB.
         /// </summary>
@@ -23,7 +31,7 @@ namespace Sprout.Exam.WebApp.Controllers
         [HttpGet]
         public async Task<IActionResult> Get()
         {
-            var result = await Task.FromResult(StaticEmployees.ResultList);
+            var result = await _employeeRepository.GetEmployeesAsync();
             return Ok(result);
         }
 
@@ -61,19 +69,22 @@ namespace Sprout.Exam.WebApp.Controllers
         [HttpPost]
         public async Task<IActionResult> Post(CreateEmployeeDto input)
         {
+            Employee employee = default;
 
-           var id = await Task.FromResult(StaticEmployees.ResultList.Max(m => m.Id) + 1);
-
-            StaticEmployees.ResultList.Add(new EmployeeDto
+            if(input.TypeId == (int)EmployeeType.Regular)
             {
-                Birthdate = input.Birthdate.ToString("yyyy-MM-dd"),
-                FullName = input.FullName,
-                Id = id,
-                Tin = input.Tin,
-                TypeId = input.TypeId
-            });
+                employee = new RegularEmployee()
+                {
+                    Birthdate = input.Birthdate,
+                    FullName = input.FullName,
+                    Tin = input.Tin,
+                    EmployeeTypeId = input.TypeId
+                };
+            }
 
-            return Created($"/api/employees/{id}", id);
+            var result = await _employeeRepository.CreateEmployeeAsync(employee);
+
+            return Created($"/api/employees/{result.Id}", result.Id);
         }
 
 
