@@ -2,7 +2,6 @@
 using Sprout.Exam.Application;
 using Sprout.Exam.Core.EmployeeAggregate;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace Sprout.Exam.Infrastructure.EntityFramework.Repository
