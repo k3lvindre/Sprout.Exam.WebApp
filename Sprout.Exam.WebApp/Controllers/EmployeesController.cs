@@ -32,7 +32,8 @@ namespace Sprout.Exam.WebApp.Controllers
         public async Task<IActionResult> Get()
         {
             var result = await _employeeRepository.GetEmployeesAsync();
-            return Ok(result);
+            var employeeList = _mapper.Map<IEnumerable<EmployeeDto>>(result);
+            return Ok(employeeList);
         }
 
         /// <summary>
