@@ -10,6 +10,8 @@ using Sprout.Exam.Infrastructure;
 using Sprout.Exam.WebApp.ApplicationModuleExtension;
 using Sprout.Exam.WebApp.Data;
 using Sprout.Exam.WebApp.Models;
+using Sprout.Exam.Core;
+using System.Reflection;
 
 namespace Sprout.Exam.WebApp
 {
@@ -38,6 +40,8 @@ namespace Sprout.Exam.WebApp
                 .AddApiAuthorization<ApplicationUser, ApplicationDbContext>();
 
             services.AddSproutDataAccess(Configuration);
+            services.Configure<RegularEmployeeSalaryOption>(Configuration.GetSection(nameof(RegularEmployeeSalaryOption)));
+            services.AddAutoMapper(typeof(MapperProfile).GetTypeInfo().Assembly);
 
             services.AddAuthentication()
                 .AddIdentityServerJwt();
