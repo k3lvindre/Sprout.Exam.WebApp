@@ -11,6 +11,9 @@ namespace Sprout.Exam.WebApp
             CreateMap<RegularEmployee, EmployeeDto>()
                 .ForMember(m => m.Birthdate, s => s.MapFrom(y => y.Birthdate.ToString("MM/dd/yyyy")))
                 .ForMember(m => m.TypeId, s => s.MapFrom(y => y.EmployeeTypeId));
+            CreateMap<ContractualEmployee, EmployeeDto>()
+                .ForMember(m => m.Birthdate, s => s.MapFrom(y => y.Birthdate.ToString("MM/dd/yyyy")))
+                .ForMember(m => m.TypeId, s => s.MapFrom(y => y.EmployeeTypeId));
         }
     }
 }
