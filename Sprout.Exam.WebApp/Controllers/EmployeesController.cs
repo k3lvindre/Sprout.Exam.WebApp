@@ -90,6 +90,17 @@ namespace Sprout.Exam.WebApp.Controllers
                     EmployeeTypeId = input.TypeId
                 };
             }
+            
+            if(input.TypeId == (int)EmployeeType.Contractual)
+            {
+                employee = new ContractualEmployee()
+                {
+                    Birthdate = input.Birthdate,
+                    FullName = input.FullName,
+                    Tin = input.Tin,
+                    EmployeeTypeId = input.TypeId
+                };
+            }
 
             var result = await _employeeRepository.CreateEmployeeAsync(employee);
 
