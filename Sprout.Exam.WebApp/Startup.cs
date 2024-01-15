@@ -42,7 +42,7 @@ namespace Sprout.Exam.WebApp
             services.AddSproutDataAccess(Configuration);
             services.Configure<RegularEmployeeSalaryOption>(Configuration.GetSection(nameof(RegularEmployeeSalaryOption)));
             services.AddAutoMapper(typeof(MapperProfile).GetTypeInfo().Assembly);
-
+           
             services.AddAuthentication()
                 .AddIdentityServerJwt();
 
