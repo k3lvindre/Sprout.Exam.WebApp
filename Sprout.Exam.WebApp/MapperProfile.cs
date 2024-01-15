@@ -4,7 +4,7 @@ using Sprout.Exam.Core.EmployeeAggregate;
 
 namespace Sprout.Exam.WebApp
 {
-    class MapperProfile : Profile
+    public class MapperProfile : Profile
     {
         public MapperProfile()
         {
