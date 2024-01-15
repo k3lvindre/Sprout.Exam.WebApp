@@ -23,6 +23,21 @@ namespace Sprout.Exam.Infrastructure.EntityFramework.Repository
             return employee;
         }
 
+        public async Task<bool> UpdateEmployeeAsync(Employee employee)
+        {
+            _sproutExamContext.Employee.Update(employee);
+            return await _sproutExamContext.SaveChangesAsync() > 0;
+        }
+        
+        public async Task<bool> DeleteEmployeeByIdAsync(int id)
+        {
+            var employee = await this.GetEmployeeByIdAsync(id);
+            _sproutExamContext.Employee.Remove(employee);
+            return await _sproutExamContext.SaveChangesAsync() > 0;
+        }
+
+        public async Task<Employee> GetEmployeeByIdAsync(int id) => await _sproutExamContext.Employee.FindAsync(id);
+
         public async Task<IEnumerable<Employee>> GetEmployeesAsync() => await _sproutExamContext.Employee.ToListAsync();
     }
 }
