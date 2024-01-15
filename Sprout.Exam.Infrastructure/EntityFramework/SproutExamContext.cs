@@ -18,7 +18,8 @@ namespace Sprout.Exam.Infrastructure
             base.OnModelCreating(modelBuilder);
             modelBuilder.Entity<Employee>()
                 .HasDiscriminator<int>(x=>x.EmployeeTypeId)
-                .HasValue<RegularEmployee>((int)EmployeeType.Regular);
+                .HasValue<RegularEmployee>((int)EmployeeType.Regular)
+                .HasValue<ContractualEmployee>((int)EmployeeType.Contractual);
         }
 
         public virtual DbSet<Employee> Employee { get; set; }
