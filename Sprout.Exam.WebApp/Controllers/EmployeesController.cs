@@ -1,15 +1,14 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
-using Sprout.Exam.Business.DataTransferObjects;
-using Sprout.Exam.Core.EmployeeAggregate.Enums;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 using Sprout.Exam.Application;
-using Sprout.Exam.Infrastructure.EntityFramework.Repository;
+using Sprout.Exam.Business.DataTransferObjects;
+using Sprout.Exam.Core;
 using Sprout.Exam.Core.EmployeeAggregate;
+using Sprout.Exam.Core.EmployeeAggregate.Enums;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Sprout.Exam.WebApp.Controllers
 {
@@ -19,10 +18,17 @@ namespace Sprout.Exam.WebApp.Controllers
     public class EmployeesController : ControllerBase
     {
         private readonly IEmployeeRepository _employeeRepository;
+        private readonly IMapper _mapper;
 
-        public EmployeesController(IEmployeeRepository employeeRepository)
+        public RegularEmployeeSalaryOption _regularEmployeeSalaryOption { get; set; }
+
+        public EmployeesController(IEmployeeRepository employeeRepository
+            , IMapper mapper
+            , IOptions<RegularEmployeeSalaryOption> regularEmployeeSalaryOption)
         {
             _employeeRepository = employeeRepository;
+            _mapper = mapper;
+            _regularEmployeeSalaryOption = regularEmployeeSalaryOption?.Value;
         }
         /// <summary>
         /// Refactor this method to go through proper layers and fetch from the DB.
@@ -43,8 +49,10 @@ namespace Sprout.Exam.WebApp.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(int id)
         {
-            var result = await Task.FromResult(StaticEmployees.ResultList.FirstOrDefault(m => m.Id == id));
-            return Ok(result);
+            var result = await _employeeRepository.GetEmployeeByIdAsync(id);
+            var employee = _mapper.Map<EmployeeDto>(result);
+
+            return Ok(employee);
         }
 
         /// <summary>
@@ -54,13 +62,13 @@ namespace Sprout.Exam.WebApp.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> Put(EditEmployeeDto input)
         {
-            var item = await Task.FromResult(StaticEmployees.ResultList.FirstOrDefault(m => m.Id == input.Id));
+            var item = await _employeeRepository.GetEmployeeByIdAsync(input.Id);
             if (item == null) return NotFound();
             item.FullName = input.FullName;
             item.Tin = input.Tin;
-            item.Birthdate = input.Birthdate.ToString("yyyy-MM-dd");
-            item.TypeId = input.TypeId;
-            return Ok(item);
+            item.Birthdate = input.Birthdate;
+            item.EmployeeTypeId = input.TypeId;
+            return await _employeeRepository.UpdateEmployeeAsync(item) ? Accepted() : BadRequest();
         }
 
         /// <summary>
@@ -96,9 +104,9 @@ namespace Sprout.Exam.WebApp.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {
-            var result = await Task.FromResult(StaticEmployees.ResultList.FirstOrDefault(m => m.Id == id));
-            if (result == null) return NotFound();
-            StaticEmployees.ResultList.RemoveAll(m => m.Id == id);
+            var result = await _employeeRepository.DeleteEmployeeByIdAsync(id);
+
+            if (!result) return BadRequest();
             return Ok(id);
         }
 
@@ -112,24 +120,30 @@ namespace Sprout.Exam.WebApp.Controllers
         /// <param name="workedDays"></param>
         /// <returns></returns>
         [HttpPost("{id}/calculate")]
-        public async Task<IActionResult> Calculate(int id,decimal absentDays,decimal workedDays)
+        public async Task<IActionResult> Calculate(CalculateRequest calculateModel)
         {
-            var result = await Task.FromResult(StaticEmployees.ResultList.FirstOrDefault(m => m.Id == id));
-
+            var result = await _employeeRepository.GetEmployeeByIdAsync(calculateModel.id);
             if (result == null) return NotFound();
-            var type = (EmployeeType) result.TypeId;
-            return type switch
-            {
-                EmployeeType.Regular =>
-                    //create computation for regular.
-                    Ok(25000),
-                EmployeeType.Contractual =>
-                    //create computation for contractual.
-                    Ok(20000),
-                _ => NotFound("Employee Type not found")
-            };
 
+            var type = (EmployeeType) result.EmployeeTypeId;
+            switch (type)
+            {
+                case EmployeeType.Regular:
+                    //Kelvin: Yes we can use factory pattern for salary here.
+                    var employee = result as RegularEmployee;
+                    return Ok(employee.CalculateSalary(calculateModel.absentDays, _regularEmployeeSalaryOption));
+                case EmployeeType.Contractual:
+                    break;
+            }
+
+            return BadRequest();
         }
 
+        public class CalculateRequest
+        {
+            public int id { get; set; }
+            public decimal absentDays { get; set; }
+            public decimal workedDays { get; set; }
+        }
     }
 }
