@@ -11,6 +11,6 @@ namespace Sprout.Exam.Core.EmployeeAggregate
         public int EmployeeTypeId { get; set; }
         public bool IsDeleted { get; set; }
 
-        public abstract void CalculateSalary();
+        public abstract decimal CalculateSalary(decimal days, SalaryOption salaryOption);
     }
 }
